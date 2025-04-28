@@ -20,11 +20,15 @@ Recent advances in 3D representations, such as Neural Radiance Fields and 3D Gau
 conda create -n CTRL_D python=3.8
 conda activate CTRL_D
 
+# [Optional] install CUDA 11.7
+conda install cuda -c nvidia/label/cuda-11.7.0
+
 # install pytorch
 conda install pytorch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 pytorch-cuda=11.7 -c pytorch -c nvidia
 
 # install dependencies
-pip install -r requirements.txt
+pip install -r requirements_monocular.txt # for monocular scenes
+pip install -r requirements_multiview.txt # for multi-view scenes
 ```
 
 ## Running
@@ -103,22 +107,46 @@ python src/Deformable-3D-Gaussians/train.py \
 
 **For multi-view scenes:**
 
-Coming soon.
+```shell
+# Step 1. for the original scene optimization
+python src/4DGaussians/train.py \
+    -s "${DATA_DIR}" \
+    --expname "${EXP_NAME}" \
+    --configs "${PATH_TO_CONFIG}" \
+    --iterations 14000 \
+# Step 2. for editing the scene
+python src/4DGaussians/train.py \
+    -s "${DATA_DIR}" \
+    --expname "${EXP_NAME}" \
+    --configs "${PATH_TO_CONFIG}" \
+    --start_checkpoint 14000 \
+    --edit_iterations 6000 \
+    --diffusion_model_checkpoint "${PATH_TO_CHECKPOINT}" \
+    --prompt "${SPECIAL_PROMPT}" \
+    --idx "${INDEX_OF_KEYFRAME}"
+```
 
-### Parallelization
-
-Coming soon.
+- For example, `EXP_NAME=dynerf/sear_steak`, `PATH_TO_CONFIG=./src/4DGaussians/arguments/dynerf/sear_steak.py`.
+- If you already have a pre-trained scene, you can skip the step 1.
 
 ### Visualization
+
+**For monocular scenes:**
 
 ```shell
 python src/Deformable-3D-Gaussians/render.py -m "${OUTPUT_DIR}"
 ```
 
+**For multi-view scenes:**
+
+```shell
+python src/4DGaussians/render.py --model_path "output/${EXP_NAME}"  --skip_train --configs "${PATH_TO_CONFIG}"
+```
+
 **Tips:**
 
 - Make sure the personalized InstructPix2Pix and the pre-trained 3D Gaussians are good. Sometimes, the best personalized model is not the latest one; pick one with the best visualization in validation.
-- Normally, optimization with $20000$ to $30000$ is enough.
+- Normally, optimization with $20000$ to $30000$ iterations for monocular scenes and $6000$ to $10000$ for multi-view scenes is enough.
 
 ## Acknowledgment
 

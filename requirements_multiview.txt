@@ -1,0 +1,17 @@
+src/4DGaussians/submodules/depth-diff-gaussian-rasterization
+src/4DGaussians/submodules/simple-knn
+plyfile==0.8.1
+tqdm
+imageio==2.27.0
+opencv-python
+imageio-ffmpeg
+scipy
+dearpygui
+lpips
+transformers==4.44.2
+diffusers == 0.20.0
+xformers==0.0.22
+accelerate==0.34.2
+huggingface-hub==0.23.5
+matplotlib
+mmcv==1.6.0
